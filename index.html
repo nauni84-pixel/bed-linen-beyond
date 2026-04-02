@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bed Linen And Beyond | Premium Home Textiles</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body { font-family: 'Montserrat', sans-serif; }
+    .heading-font { font-family: 'Cormorant Garamond', serif; }
+    .hero-gradient {
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+        url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=2000');
+      background-size: cover;
+      background-position: center;
+    }
+    .glass-nav { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); }
+    .product-card:hover .add-to-cart { opacity: 1; transform: translateY(0); }
+    input[type=range]::-webkit-slider-runnable-track { background: #e5e7eb; border-radius: 999px; height: 4px; }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; height: 16px; width: 16px;
+      background: #1f2937; border-radius: 50%; margin-top: -6px; cursor: pointer;
+    }
+  </style>
+</head>
+<body class="bg-[#faf9f6] text-gray-800 antialiased">
+
+  <!-- ── Navigation ──────────────────────────────── -->
+  <nav class="fixed w-full z-50 glass-nav border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="heading-font text-3xl tracking-widest uppercase">
+        Bed Linen <span class="text-gray-400">&</span> Beyond
+      </h1>
+      <div class="flex items-center space-x-8">
+
+        <!-- ✅ CHANGED: now links to login.html, not admin.html directly -->
+        <a href="login.html" class="text-xs uppercase tracking-widest hover:text-gray-500 transition">
+          Owner Login
+        </a>
+
+        <button onclick="toggleCart()" class="relative">
+          <i class="fa-solid fa-bag-shopping text-xl"></i>
+          <span id="cart-count"
+            class="absolute -top-2 -right-2 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+            0
+          </span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Hero Banner ─────────────────────────────── -->
+  <header class="h-[80vh] flex items-center justify-center text-center text-white hero-gradient relative">
+    <div class="max-w-3xl px-6">
+      <h2 class="heading-font text-6xl md:text-8xl mb-6">Supreme Comfort</h2>
+      <p class="text-lg md:text-xl font-light tracking-widest uppercase mb-8">
+        Luxury Linens for the Discerning Home
+      </p>
+      <a href="#shop"
+        class="inline-block border border-white px-10 py-4 hover:bg-white hover:text-black transition duration-500 tracking-widest uppercase text-sm">
+        Explore Collection
+      </a>
+    </div>
+  </header>
+
+  <!-- ── Search & Filters ────────────────────────── -->
+  <section id="shop" class="max-w-7xl mx-auto px-6 py-20">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-16 space-y-8 md:space-y-0">
+
+      <!-- Search -->
+      <div class="w-full md:w-1/3">
+        <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
+          Search Products
+        </label>
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Name of the product..."
+          class="w-full bg-transparent border-b border-gray-300 py-2 focus:outline-none focus:border-black transition font-light"
+        >
+      </div>
+
+      <!-- Price Slider -->
+      <div class="w-full md:w-1/3 px-0 md:px-10">
+        <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
+          Price Range: €0 – €<span id="price-val">1000</span>
+        </label>
+        <input
+          type="range"
+          id="price-slider"
+          min="0" max="1000" value="1000"
+          class="w-full appearance-none bg-transparent cursor-pointer"
+        >
+      </div>
+
+      <div class="text-right">
+        <p class="heading-font text-2xl italic">Elegance in every thread.</p>
+      </div>
+
+    </div>
+
+    <!-- Product Grid — populated by app.js -->
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <!-- app.js injects cards here -->
+    </div>
+  </section>
+
+  <!-- ── Inquiry Sidebar (Cart) ──────────────────── -->
+  <div id="cart-sidebar"
+    class="fixed top-0 right-0 h-full w-full md:w-96 bg-white z-[60] shadow-2xl transform translate-x-full transition-transform duration-500 overflow-y-auto">
+    <div class="p-8">
+
+      <div class="flex justify-between items-center mb-12">
+        <h3 class="heading-font text-3xl">Inquiry List</h3>
+        <button onclick="toggleCart()" class="text-gray-400 hover:text-black">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div id="cart-items" class="space-y-8">
+        <!-- app.js injects cart items here -->
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-gray-100">
+        <div class="flex justify-between text-lg mb-8">
+          <span class="font-light italic">Estimated Total</span>
+          <span id="cart-total" class="font-semibold">€0.00</span>
+        </div>
+        <button
+          onclick="sendWhatsAppInquiry()"
+          class="w-full bg-black text-white py-5 tracking-widest uppercase text-sm hover:bg-gray-800 transition">
+          Send Inquiry via WhatsApp
+          <i class="fa-brands fa-whatsapp ml-2 text-lg"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Footer ──────────────────────────────────── -->
+  <footer class="bg-white border-t border-gray-100 py-20 text-center">
+    <h2 class="heading-font text-3xl mb-4 tracking-widest uppercase">Bed Linen & Beyond</h2>
+    <p class="text-gray-400 text-xs tracking-[0.3em] uppercase mb-8">Est. 2024 — Pure Elegance</p>
+    <div class="flex justify-center space-x-6 text-gray-400">
+      <a href="#" class="hover:text-black"><i class="fa-brands fa-instagram text-xl"></i></a>
+      <a href="#" class="hover:text-black"><i class="fa-brands fa-pinterest text-xl"></i></a>
+    </div>
+  </footer>
+
+  <!-- ✅ Firebase SDKs — must come BEFORE app.js -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
