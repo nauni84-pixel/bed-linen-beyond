@@ -1,39 +1,49 @@
 // ============================================================
-//  js/admin.js — Admin Dashboard Logic
-//  Phase 3: Firebase Auth guard + Firestore + Storage
+//  js/admin.js — Admin Dashboard (GitHub Images version)
+//  Images are hosted in the GitHub repo /images/ folder.
+//  Firebase Storage is NOT used.
 // ============================================================
 
 
 // ─────────────────────────────────────────────
-// 1. AUTH GUARD — RUNS FIRST, BEFORE ANYTHING
-//    Firebase checks if the owner is logged in.
+// ⚠️  CONFIGURATION — CHANGE THIS LINE
+//     Replace with your actual GitHub Pages URL.
+//     Find it in: repo → Settings → Pages
 //
-//    ✅ Logged in  → remove the loading overlay
-//                    and show the dashboard.
-//    ❌ Not logged in → redirect to login page.
-//
-//    The white overlay in admin.html hides the
-//    page content until this check completes,
-//    so strangers never see a flash of the UI.
+//     Format:  https://YOUR-USERNAME.github.io/YOUR-REPO-NAME
+//     Example: https://nand.github.io/bed-linen-beyond
+// ─────────────────────────────────────────────
+const GITHUB_PAGES_URL = "https://YOUR-USERNAME.github.io/YOUR-REPO-NAME";
+
+// ⚠️  CHANGE THIS TOO
+//     Your GitHub username and repo name — used to build
+//     the upload link that opens GitHub directly.
+const GITHUB_USERNAME  = "YOUR-USERNAME";
+const GITHUB_REPO      = "YOUR-REPO-NAME";
+
+// The upload page URL (opens GitHub's image upload page)
+const GITHUB_UPLOAD_URL = `https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}/upload/main/images`;
+
+
+// ─────────────────────────────────────────────
+// 1. AUTH GUARD
+//    Runs immediately — checks if owner is logged in.
+//    White overlay on admin.html hides content until confirmed.
 // ─────────────────────────────────────────────
 auth.onAuthStateChanged(user => {
   if (!user) {
-    // No active session → go to login
     window.location.href = "login.html";
     return;
   }
-
-  // ✅ Authenticated — reveal the dashboard
+  // ✅ Logged in — reveal the page
   document.getElementById("auth-loading").remove();
   document.getElementById("admin-email").textContent = user.email;
-  loadAdminProducts(); // Start listening for products
+  loadAdminProducts();
 });
 
 
 // ─────────────────────────────────────────────
 // 2. LOGOUT
-//    Signs the owner out and returns them
-//    to the login page.
 // ─────────────────────────────────────────────
 function logout() {
   auth.signOut()
@@ -43,10 +53,56 @@ function logout() {
 
 
 // ─────────────────────────────────────────────
-// 3. LOAD PRODUCTS (REAL-TIME)
-//    onSnapshot keeps the list in sync.
-//    When you edit or delete here, the storefront
-//    updates automatically — no refresh needed.
+// 3. IMAGE PREVIEW + STEP 2 REVEAL
+//    When the owner picks a file:
+//    → Show a local preview (so they can see the image)
+//    → Auto-fill the filename field
+//    → Show the Step 2 section (GitHub upload instructions)
+//    → Update the constructed URL preview
+// ─────────────────────────────────────────────
+document.getElementById("prod-image-file").addEventListener("change", function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  // Show preview using local file (FileReader — no upload needed)
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById("preview-img").src = e.target.result;
+    document.getElementById("image-preview").classList.remove("hidden");
+  };
+  reader.readAsDataURL(file);
+
+  // Auto-fill filename — cleaned up (spaces → hyphens, lowercase)
+  const cleanName = file.name.toLowerCase().replace(/\s+/g, "-");
+  document.getElementById("prod-filename").value = cleanName;
+
+  // Show Step 2 section
+  document.getElementById("step2-section").classList.remove("hidden");
+
+  // Set GitHub upload link
+  document.getElementById("github-upload-link").href = GITHUB_UPLOAD_URL;
+
+  // Update URL preview
+  updateURLPreview();
+});
+
+// Update the URL preview whenever the filename changes
+document.getElementById("prod-filename").addEventListener("input", updateURLPreview);
+
+function updateURLPreview() {
+  const filename = document.getElementById("prod-filename").value.trim();
+  const previewEl = document.getElementById("url-preview");
+
+  if (filename) {
+    previewEl.textContent = `${GITHUB_PAGES_URL}/images/${filename}`;
+  } else {
+    previewEl.textContent = "Enter a filename above";
+  }
+}
+
+
+// ─────────────────────────────────────────────
+// 4. LOAD PRODUCTS — REAL-TIME FROM FIRESTORE
 // ─────────────────────────────────────────────
 function loadAdminProducts() {
   db.collection("products")
@@ -61,16 +117,14 @@ function loadAdminProducts() {
       },
       error => {
         console.error("Firestore error:", error);
-        showError("Failed to load products. Check the console for details.");
+        showError("Failed to load products. Check console for details.");
       }
     );
 }
 
 
 // ─────────────────────────────────────────────
-// 4. RENDER PRODUCT ROWS IN ADMIN LIST
-//    Each row has editable name/price/description
-//    plus Save and Delete buttons.
+// 5. RENDER PRODUCT ROWS
 // ─────────────────────────────────────────────
 function renderAdminProducts(products) {
   const list = document.getElementById("admin-product-list");
@@ -89,17 +143,13 @@ function renderAdminProducts(products) {
   list.innerHTML = products.map(p => `
     <div class="flex flex-col md:flex-row items-start md:items-center
                 space-y-4 md:space-y-0 md:space-x-6
-                p-6 bg-gray-50 rounded-xl border border-gray-100
-                hover:border-black transition"
+                p-6 bg-gray-50 rounded-xl border border-gray-100 hover:border-black transition"
          id="row-${p.id}">
 
       <!-- Thumbnail -->
-      <img
-        src="${p.image}"
-        alt="${p.name}"
-        class="w-20 h-20 object-cover rounded-lg shadow-sm flex-shrink-0"
-        onerror="this.src='https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=200'"
-      >
+      <img src="${p.image}" alt="${escapeHtml(p.name)}"
+        class="w-20 h-20 object-cover rounded-lg shadow-sm flex-shrink-0 bg-gray-100"
+        onerror="this.src='https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=200'">
 
       <!-- Editable Fields -->
       <div class="flex-1 space-y-3 min-w-0">
@@ -107,76 +157,57 @@ function renderAdminProducts(products) {
         <!-- Name -->
         <div class="flex items-center space-x-3">
           <span class="text-[9px] uppercase tracking-widest text-gray-400 w-16 flex-shrink-0">Name</span>
-          <input
-            type="text"
-            id="name-${p.id}"
-            value="${escapeHtml(p.name)}"
+          <input type="text" id="name-${p.id}" value="${escapeHtml(p.name)}"
             class="flex-1 bg-transparent border-b border-gray-200 py-1
-                   focus:outline-none focus:border-black transition text-sm font-light min-w-0"
-          >
+                   focus:outline-none focus:border-black transition text-sm font-light min-w-0">
         </div>
 
         <!-- Price -->
         <div class="flex items-center space-x-3">
           <span class="text-[9px] uppercase tracking-widest text-gray-400 w-16 flex-shrink-0">Price €</span>
-          <input
-            type="number"
-            id="price-${p.id}"
-            value="${p.price}"
-            step="0.01"
-            min="0"
+          <input type="number" id="price-${p.id}" value="${p.price}" step="0.01" min="0"
             class="flex-1 bg-transparent border-b border-gray-200 py-1
-                   focus:outline-none focus:border-black transition text-sm font-semibold min-w-0"
-          >
+                   focus:outline-none focus:border-black transition text-sm font-semibold min-w-0">
         </div>
 
         <!-- Description -->
         <div class="flex items-center space-x-3">
           <span class="text-[9px] uppercase tracking-widest text-gray-400 w-16 flex-shrink-0">Info</span>
-          <input
-            type="text"
-            id="desc-${p.id}"
-            value="${escapeHtml(p.description || '')}"
-            maxlength="80"
+          <input type="text" id="desc-${p.id}" value="${escapeHtml(p.description || '')}" maxlength="80"
             class="flex-1 bg-transparent border-b border-gray-200 py-1
-                   focus:outline-none focus:border-black transition text-xs text-gray-500 min-w-0"
-          >
+                   focus:outline-none focus:border-black transition text-xs text-gray-500 min-w-0">
+        </div>
+
+        <!-- Current image URL (read-only info) -->
+        <div class="flex items-start space-x-3">
+          <span class="text-[9px] uppercase tracking-widest text-gray-400 w-16 flex-shrink-0 mt-1">Image</span>
+          <p class="text-[10px] text-gray-300 font-mono break-all flex-1">${p.image}</p>
         </div>
 
       </div>
 
       <!-- Action Buttons -->
       <div class="flex items-center space-x-3 flex-shrink-0 self-center">
-
-        <!-- Save changes -->
-        <button
-          onclick="saveProduct('${p.id}')"
+        <button onclick="saveProduct('${p.id}')"
           class="text-[10px] uppercase tracking-widest border border-black px-4 py-2
-                 hover:bg-black hover:text-white transition"
-        >
+                 hover:bg-black hover:text-white transition">
           Save
         </button>
-
-        <!-- Delete product -->
-        <button
-          onclick="deleteProduct('${p.id}', '${escapeHtml(p.name)}', '${p.imageRef || ''}')"
-          class="text-gray-300 hover:text-red-500 transition px-2"
-          title="Delete product"
-        >
+        <button onclick="deleteProduct('${p.id}', '${escapeHtml(p.name)}')"
+          class="text-gray-300 hover:text-red-500 transition px-2" title="Delete">
           <i class="fa-solid fa-trash-can"></i>
         </button>
-
       </div>
+
     </div>
   `).join("");
 }
 
 
 // ─────────────────────────────────────────────
-// 5. SAVE / UPDATE A PRODUCT
-//    Writes the edited name, price, description
-//    back to Firestore. Image is NOT changed here
-//    (to change an image, delete and re-add the product).
+// 6. SAVE / UPDATE PRODUCT (name, price, description)
+//    Image URL is not changed here — to change an
+//    image, delete the product and re-add it.
 // ─────────────────────────────────────────────
 async function saveProduct(productId) {
   const name  = document.getElementById(`name-${productId}`).value.trim();
@@ -204,75 +235,38 @@ async function saveProduct(productId) {
 
 
 // ─────────────────────────────────────────────
-// 6. DELETE A PRODUCT
-//    Removes the Firestore document AND
-//    the uploaded image from Firebase Storage.
+// 7. DELETE PRODUCT
+//    Only removes from Firestore.
+//    The image file stays in GitHub (that's fine —
+//    GitHub storage is unlimited for public repos).
 // ─────────────────────────────────────────────
-async function deleteProduct(productId, productName, imageRef) {
+async function deleteProduct(productId, productName) {
   if (!confirm(`Remove "${productName}" from your boutique?\n\nThis cannot be undone.`)) return;
 
   try {
-    // Remove Firestore document first
     await db.collection("products").doc(productId).delete();
-
-    // Remove image from Storage (only if it was uploaded — not an external URL)
-    if (imageRef) {
-      try {
-        await storage.ref(imageRef).delete();
-      } catch (storageErr) {
-        // Not fatal — image may have already been removed
-        console.warn("Storage image not deleted:", storageErr.message);
-      }
-    }
-
-    showSuccess(`"${productName}" has been removed from the boutique.`);
-
+    showSuccess(`"${productName}" has been removed.`);
   } catch (error) {
     console.error("Delete error:", error);
-    showError("Failed to delete the product. Please try again.");
+    showError("Failed to delete. Please try again.");
   }
 }
 
 
 // ─────────────────────────────────────────────
-// 7. IMAGE PREVIEW
-//    When the owner picks a file, show a preview
-//    immediately — before the actual upload starts.
-// ─────────────────────────────────────────────
-document.getElementById("prod-image").addEventListener("change", function () {
-  const file = this.files[0];
-  if (!file) return;
-
-  const preview    = document.getElementById("image-preview");
-  const previewImg = document.getElementById("preview-img");
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    previewImg.src = e.target.result;
-    preview.classList.remove("hidden");
-  };
-  reader.readAsDataURL(file);
-});
-
-
-// ─────────────────────────────────────────────
 // 8. ADD NEW PRODUCT — FORM SUBMISSION
-//    Flow:
-//    Step 1 → Validate inputs
-//    Step 2 → Upload image to Firebase Storage
-//    Step 3 → Get the public image URL
-//    Step 4 → Save product data to Firestore
-//    Step 5 → Reset form
+//    No file upload needed here. The image already
+//    lives in GitHub. We just save the URL to Firestore.
 // ─────────────────────────────────────────────
 document.getElementById("add-product-form").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name  = document.getElementById("prod-name").value.trim();
-  const price = parseFloat(document.getElementById("prod-price").value);
-  const desc  = document.getElementById("prod-desc").value.trim();
-  const file  = document.getElementById("prod-image").files[0];
+  const name     = document.getElementById("prod-name").value.trim();
+  const price    = parseFloat(document.getElementById("prod-price").value);
+  const desc     = document.getElementById("prod-desc").value.trim();
+  const filename = document.getElementById("prod-filename").value.trim();
 
-  // ── Client-side validation ──
+  // ── Validation ──
   if (!name) {
     showError("Please enter a product name.");
     return;
@@ -281,63 +275,36 @@ document.getElementById("add-product-form").addEventListener("submit", async (e)
     showError("Please enter a valid price.");
     return;
   }
-  if (!file) {
-    showError("Please select a product image.");
+  if (!filename) {
+    showError("Please enter the image filename.");
     return;
   }
-  if (file.size > 5 * 1024 * 1024) {
-    showError("Image is too large. Please choose an image under 5 MB.");
-    return;
-  }
+
+  // ── Construct the GitHub Pages image URL ──
+  const imageURL = `${GITHUB_PAGES_URL}/images/${filename}`;
 
   setFormLoading(true);
-  updateProgress("Preparing upload...", 10);
 
   try {
-    // ── STEP 1: Upload image to Firebase Storage ──────────
-    //    Path: products/timestamp_filename.jpg
-    //    This path is saved so we can delete the image later.
-    const imagePath = `products/${Date.now()}_${file.name}`;
-    const imageRef  = storage.ref(imagePath);
-    const uploadTask = imageRef.put(file);
-
-    // Track upload progress (shows the progress bar moving)
-    uploadTask.on("state_changed", snapshot => {
-      const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 75;
-      updateProgress("Uploading image...", 15 + pct);
-    });
-
-    // Wait for upload to finish
-    await uploadTask;
-    updateProgress("Getting image URL...", 92);
-
-    // ── STEP 2: Get the public download URL ───────────────
-    const imageURL = await imageRef.getDownloadURL();
-
-    // ── STEP 3: Save product to Firestore ─────────────────
-    updateProgress("Saving product...", 97);
     await db.collection("products").add({
       name,
       price,
       description: desc,
-      image:       imageURL,    // URL customers see
-      imageRef:    imagePath,   // Storage path (for deletion later)
+      image:       imageURL,
       createdAt:   firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // ── Done! ─────────────────────────────────────────────
-    updateProgress("Done!", 100);
     showSuccess(`"${name}" is now live in your boutique! ✨`);
 
-    // Reset the form and hide the preview
+    // Reset form
     e.target.reset();
     document.getElementById("image-preview").classList.add("hidden");
-    setTimeout(() => updateProgress("", 0), 1500);
+    document.getElementById("step2-section").classList.add("hidden");
+    document.getElementById("url-preview").textContent = "";
 
   } catch (error) {
-    console.error("Upload/save error:", error);
-    showError("Something went wrong. Please try again.");
-    updateProgress("", 0);
+    console.error("Save error:", error);
+    showError("Failed to save product. Please try again.");
   } finally {
     setFormLoading(false);
   }
@@ -346,77 +313,46 @@ document.getElementById("add-product-form").addEventListener("submit", async (e)
 
 // ─────────────────────────────────────────────
 // 9. FORM LOADING STATE
-//    Disables the submit button and shows
-//    "Uploading..." while Firebase is working.
 // ─────────────────────────────────────────────
 function setFormLoading(isLoading) {
-  const btn  = document.getElementById("submit-btn");
+  const btn = document.getElementById("submit-btn");
   btn.disabled = isLoading;
   btn.innerHTML = isLoading
-    ? `<i class="fa-solid fa-spinner fa-spin"></i><span>Uploading...</span>`
-    : `<i class="fa-solid fa-cloud-arrow-up"></i><span>Upload Product</span>`;
+    ? `<i class="fa-solid fa-spinner fa-spin"></i><span>Saving...</span>`
+    : `<i class="fa-solid fa-plus"></i><span>Add Product to Boutique</span>`;
 }
 
 
 // ─────────────────────────────────────────────
-// 10. PROGRESS BAR
-//     Shows / hides the progress bar and label.
-// ─────────────────────────────────────────────
-function updateProgress(message, percent) {
-  const container = document.getElementById("progress-container");
-  const bar       = document.getElementById("progress-bar");
-  const label     = document.getElementById("progress-label");
-
-  if (percent > 0) {
-    container.classList.remove("hidden");
-    bar.style.width     = `${percent}%`;
-    label.textContent   = message;
-  } else {
-    container.classList.add("hidden");
-    bar.style.width = "0%";
-  }
-}
-
-
-// ─────────────────────────────────────────────
-// 11. TOAST NOTIFICATIONS
-//     showSuccess() → black toast with green tick
-//     showError()   → red toast with warning icon
+// 10. TOAST NOTIFICATIONS
 // ─────────────────────────────────────────────
 function showSuccess(message) { showToast(message, "success"); }
 function showError(message)   { showToast(message, "error");   }
 
 function showToast(message, type) {
-  const toast    = document.getElementById("toast");
-  const toastMsg = document.getElementById("toast-message");
-  const toastIcon= document.getElementById("toast-icon");
+  const toast     = document.getElementById("toast");
+  const toastMsg  = document.getElementById("toast-message");
+  const toastIcon = document.getElementById("toast-icon");
 
   toastMsg.textContent = message;
 
   if (type === "success") {
     toast.className = `fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 shadow-xl
-                       flex items-center space-x-3 transition-transform duration-500 max-w-sm`;
+                       flex items-center space-x-3 max-w-sm transition-transform duration-500`;
     toastIcon.className = "fa-solid fa-check text-green-400 flex-shrink-0";
   } else {
     toast.className = `fixed bottom-6 right-6 z-50 bg-red-600 text-white px-6 py-4 shadow-xl
-                       flex items-center space-x-3 transition-transform duration-500 max-w-sm`;
+                       flex items-center space-x-3 max-w-sm transition-transform duration-500`;
     toastIcon.className = "fa-solid fa-circle-exclamation flex-shrink-0";
   }
 
-  // Slide in
   toast.style.transform = "translateX(0)";
-
-  // Slide out after 4 seconds
-  setTimeout(() => {
-    toast.style.transform = "translateX(150%)";
-  }, 4000);
+  setTimeout(() => { toast.style.transform = "translateX(150%)"; }, 4000);
 }
 
 
 // ─────────────────────────────────────────────
-// 12. HELPER — ESCAPE HTML
-//     Prevents XSS if a product name contains
-//     characters like < > " &
+// 11. HELPER — ESCAPE HTML
 // ─────────────────────────────────────────────
 function escapeHtml(str) {
   if (!str) return "";
