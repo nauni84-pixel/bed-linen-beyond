@@ -14,12 +14,7 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-  <!-- ── Auth Guard Overlay ──────────────────────────────────
-       Covers the entire page while Firebase checks if the
-       owner is logged in. admin.js removes it on success,
-       or redirects to login.html on failure.
-       This prevents a "flash" of the dashboard to strangers.
-  ─────────────────────────────────────────────────────────── -->
+  <!-- Auth guard overlay -->
   <div id="auth-loading" class="fixed inset-0 bg-white z-[999] flex items-center justify-center">
     <div class="text-center">
       <i class="fa-solid fa-spinner fa-spin text-2xl text-gray-300 mb-4 block"></i>
@@ -27,35 +22,29 @@
     </div>
   </div>
 
-  <!-- ── Navigation ──────────────────────────────────────── -->
+  <!-- Navigation -->
   <nav class="bg-white border-b border-gray-100 px-6 py-4">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-
       <h1 class="heading-font text-2xl tracking-widest uppercase">Admin Dashboard</h1>
-
       <div class="flex items-center space-x-6">
-        <!-- Shows the logged-in email -->
         <span id="admin-email" class="text-xs text-gray-400 hidden md:block italic"></span>
         <a href="index.html" class="text-xs uppercase tracking-widest text-gray-400 hover:text-black transition">
           View Storefront
         </a>
-        <!-- Logout -->
-        <button
-          onclick="logout()"
+        <button onclick="logout()"
           class="text-xs uppercase tracking-widest text-red-400 hover:text-red-600 transition flex items-center space-x-1">
           <i class="fa-solid fa-right-from-bracket"></i>
           <span>Logout</span>
         </button>
       </div>
-
     </div>
   </nav>
 
-  <!-- ── Main Content ─────────────────────────────────────── -->
+  <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-6 py-12">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-      <!-- ─── LEFT COLUMN: Add New Product ─── -->
+      <!-- LEFT: Add New Product -->
       <div class="lg:col-span-1">
         <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 sticky top-6">
           <h2 class="heading-font text-3xl mb-8">Add New Product</h2>
@@ -67,13 +56,9 @@
               <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
                 Product Name *
               </label>
-              <input
-                type="text"
-                id="prod-name"
-                required
+              <input type="text" id="prod-name" required
                 placeholder="e.g. Egyptian Cotton Duvet Cover"
-                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm"
-              >
+                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm">
             </div>
 
             <!-- Price -->
@@ -81,15 +66,9 @@
               <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
                 Price (€) *
               </label>
-              <input
-                type="number"
-                id="prod-price"
-                step="0.01"
-                min="0"
-                required
+              <input type="number" id="prod-price" step="0.01" min="0" required
                 placeholder="0.00"
-                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm"
-              >
+                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm">
             </div>
 
             <!-- Description -->
@@ -97,81 +76,100 @@
               <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
                 Short Description
               </label>
-              <input
-                type="text"
-                id="prod-desc"
-                maxlength="80"
+              <input type="text" id="prod-desc" maxlength="80"
                 placeholder="e.g. 500 thread count. Pure luxury."
-                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm"
-              >
-              <p class="text-[10px] text-gray-300 mt-1">Shown under the product name. Max 80 characters.</p>
+                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm">
             </div>
 
-            <!-- Image Upload -->
-            <div>
-              <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
-                Product Image *
-              </label>
+            <!-- ── IMAGE SECTION (GitHub method) ───────────────── -->
+            <div class="space-y-5 bg-gray-50 rounded-xl p-5 border border-gray-100">
 
-              <!-- Styled file drop zone -->
-              <label for="prod-image" class="block cursor-pointer group">
-                <div class="border-2 border-dashed border-gray-200 group-hover:border-black transition p-8 text-center rounded">
-                  <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-300 group-hover:text-black transition mb-3 block"></i>
-                  <p class="text-xs text-gray-400 mb-1">Click to choose an image</p>
-                  <p class="text-[10px] text-gray-300">JPG, PNG, WEBP — max 5 MB</p>
-                </div>
-                <!-- Hidden real input -->
-                <input type="file" id="prod-image" accept="image/*" required class="hidden">
-              </label>
+              <p class="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
+                Product Image — 2 steps
+              </p>
 
-              <!-- Preview (shown after image is selected) -->
-              <div id="image-preview" class="hidden mt-4">
-                <img id="preview-img" src="" alt="Preview"
-                  class="w-full h-44 object-cover rounded border border-gray-100">
-                <p class="text-[10px] text-green-600 mt-2">
-                  <i class="fa-solid fa-check mr-1"></i>Image selected — ready to upload
+              <!-- STEP 1: Pick file for local preview -->
+              <div>
+                <p class="text-xs text-gray-600 mb-3">
+                  <span class="bg-black text-white rounded-full w-4 h-4 inline-flex items-center justify-center text-[9px] mr-1">1</span>
+                  Pick your image file to preview it
                 </p>
-              </div>
-            </div>
 
-            <!-- Upload Progress -->
-            <div id="progress-container" class="hidden">
-              <div class="flex justify-between items-center mb-1">
-                <span id="progress-label" class="text-[10px] text-gray-400 uppercase tracking-widest">Uploading...</span>
-              </div>
-              <div class="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  id="progress-bar"
-                  class="bg-black h-1.5 rounded-full transition-all duration-300"
-                  style="width: 0%">
+                <label for="prod-image-file" class="block cursor-pointer group">
+                  <div class="border-2 border-dashed border-gray-200 group-hover:border-black transition p-6 text-center rounded-lg">
+                    <i class="fa-solid fa-image text-2xl text-gray-300 group-hover:text-black transition mb-2 block"></i>
+                    <p class="text-xs text-gray-400">Click to choose image</p>
+                    <p class="text-[10px] text-gray-300 mt-1">JPG, PNG, WEBP</p>
+                  </div>
+                  <input type="file" id="prod-image-file" accept="image/*" class="hidden">
+                </label>
+
+                <!-- Preview appears here after picking -->
+                <div id="image-preview" class="hidden mt-3">
+                  <img id="preview-img" src="" alt="Preview"
+                    class="w-full h-40 object-cover rounded-lg border border-gray-100">
                 </div>
               </div>
+
+              <!-- STEP 2: Upload to GitHub + confirm filename -->
+              <div id="step2-section" class="hidden">
+                <p class="text-xs text-gray-600 mb-3">
+                  <span class="bg-black text-white rounded-full w-4 h-4 inline-flex items-center justify-center text-[9px] mr-1">2</span>
+                  Upload this file to GitHub, then confirm the filename
+                </p>
+
+                <!-- GitHub upload link -->
+                <a id="github-upload-link"
+                  href="#"
+                  target="_blank"
+                  class="flex items-center space-x-2 bg-gray-900 text-white px-4 py-3 rounded-lg text-xs hover:bg-gray-700 transition mb-4">
+                  <i class="fa-brands fa-github text-base"></i>
+                  <span>Open GitHub → Upload image file</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto opacity-60"></i>
+                </a>
+
+                <!-- Filename field (auto-filled, editable) -->
+                <div>
+                  <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
+                    Image Filename *
+                  </label>
+                  <input type="text" id="prod-filename"
+                    placeholder="e.g. cotton-duvet.jpg"
+                    class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition text-sm font-light">
+                  <p class="text-[10px] text-gray-400 mt-1">
+                    Must match exactly what you upload to GitHub
+                  </p>
+                </div>
+
+                <!-- Constructed URL preview -->
+                <div class="mt-3 bg-white border border-gray-100 rounded p-3">
+                  <p class="text-[9px] uppercase tracking-widest text-gray-400 mb-1">Image will load from:</p>
+                  <p id="url-preview" class="text-[10px] text-blue-500 break-all font-mono"></p>
+                </div>
+              </div>
+
             </div>
+            <!-- ── END IMAGE SECTION ───────────────────────────── -->
 
             <!-- Submit -->
-            <button
-              type="submit"
-              id="submit-btn"
+            <button type="submit" id="submit-btn"
               class="w-full bg-black text-white py-4 tracking-widest uppercase text-xs
                      hover:bg-gray-800 transition shadow-lg
                      disabled:opacity-50 disabled:cursor-not-allowed
-                     flex items-center justify-center space-x-2"
-            >
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-              <span>Upload Product</span>
+                     flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Product to Boutique</span>
             </button>
 
           </form>
         </div>
       </div>
 
-      <!-- ─── RIGHT COLUMN: Manage Products ─── -->
+      <!-- RIGHT: Manage Products -->
       <div class="lg:col-span-2">
         <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
           <h2 class="heading-font text-3xl mb-8">Inventory Management</h2>
-
           <div id="admin-product-list" class="space-y-6">
-            <!-- admin.js injects product rows here -->
             <div class="text-center py-12">
               <i class="fa-solid fa-spinner fa-spin text-xl text-gray-300 mb-3 block"></i>
               <p class="text-sm text-gray-400">Loading inventory...</p>
@@ -183,20 +181,19 @@
     </div>
   </div>
 
-  <!-- ── Toast Notification ──────────────────────────────── -->
+  <!-- Toast -->
   <div id="toast"
     class="fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 shadow-xl
-           flex items-center space-x-3
-           translate-x-[150%] transition-transform duration-500 max-w-sm">
+           flex items-center space-x-3 max-w-sm
+           translate-x-[150%] transition-transform duration-500">
     <i id="toast-icon" class="fa-solid fa-check text-green-400 flex-shrink-0"></i>
     <span id="toast-message" class="text-sm leading-relaxed"></span>
   </div>
 
-  <!-- ✅ Firebase SDKs — all 4 needed for admin -->
+  <!-- ✅ Firebase SDKs — Storage SDK REMOVED -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/admin.js"></script>
 
