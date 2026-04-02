@@ -13,13 +13,13 @@
 //     Format:  https://YOUR-USERNAME.github.io/YOUR-REPO-NAME
 //     Example: https://nand.github.io/bed-linen-beyond
 // ─────────────────────────────────────────────
-const GITHUB_PAGES_URL = "https://YOUR-USERNAME.github.io/YOUR-REPO-NAME";
+const GITHUB_PAGES_URL = "https://github.com/nauni84-pixel/bed-linen-beyond/";
 
 // ⚠️  CHANGE THIS TOO
 //     Your GitHub username and repo name — used to build
 //     the upload link that opens GitHub directly.
-const GITHUB_USERNAME  = "YOUR-USERNAME";
-const GITHUB_REPO      = "YOUR-REPO-NAME";
+const GITHUB_USERNAME  = "nauni84-pixel";
+const GITHUB_REPO      = "bed-linen-beyond";
 
 // The upload page URL (opens GitHub's image upload page)
 const GITHUB_UPLOAD_URL = `https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}/upload/main/images`;
