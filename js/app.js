@@ -98,7 +98,12 @@ function addToCart(productId) {
   }
 
   updateCartUI();
-  if (!cartOpen) toggleCart();
+
+  const sidebar = document.getElementById("cart-sidebar");
+  if (sidebar.classList.contains("translate-x-full")) {
+    toggleCart();
+  }
+
   showToast(`"${product.name}" added to inquiry list`, "success");
 }
 
@@ -108,12 +113,21 @@ function removeFromCart(productId) {
 }
 
 function changeQty(productId, delta) {
-  const item = cart.find(i => i.id === productId);
-  if (!item) return;
-  item.qty += delta;
-  if (item.qty <= 0) cart = cart.filter(i => i.id !== productId);
+  const itemIndex = cart.findIndex(i => i.id === productId);
+  if (itemIndex === -1) return;
+
+  cart[itemIndex].qty += delta;
+
+  if (cart[itemIndex].qty <= 0) {
+    cart.splice(itemIndex, 1);
+  }
+
   updateCartUI();
 }
+
+window.changeQty = changeQty;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
 
 function updateCartUI() {
   const countBadge  = document.getElementById("cart-count");
@@ -160,7 +174,7 @@ function updateCartUI() {
                   class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center text-[10px] transition">
             <i class="fa-solid fa-minus"></i>
           </button>
-          <span class="text-xs text-gray-700 w-4 text-center">${item.qty}</span>
+          <span class="text-xs text-gray-700 w-4 text-center font-semibold">${item.qty}</span>
           <button onclick="changeQty('${item.id}', 1)"
                   class="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 flex items-center justify-center text-[10px] transition">
             <i class="fa-solid fa-plus"></i>
@@ -235,6 +249,6 @@ function showToast(message, type) {
 
 function escapeHtml(str) {
   return String(str || "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/&/g, "&amp;").replace(//g, "&lt;")
     .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
