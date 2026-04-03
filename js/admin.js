@@ -130,20 +130,69 @@ function renderAdminProducts(products) {
   }
 
   list.innerHTML = products.map(p => `
-    <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition">
-      <img src="${p.image}" class="w-14 h-14 object-cover rounded-lg bg-gray-200 border border-gray-200 shadow-sm"
-           onerror="this.src='https://via.placeholder.com/100'">
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-gray-800 truncate">${escapeHtml(p.name)}</p>
-        <p class="text-sm text-gray-700 font-medium mt-0.5">€${p.price.toFixed(2)}</p>
-        ${p.description ? `<p class="text-xs text-gray-500 truncate font-light mt-0.5">${escapeHtml(p.description)}</p>` : ""}
+    <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition" id="row-${p.id}">
+      <div class="flex items-start space-x-4">
+        <!-- Thumbnail -->
+        <img src="${p.image}" class="w-16 h-16 object-cover rounded-lg bg-gray-200 border border-gray-200 shadow-sm shrink-0"
+             onerror="this.src='https://via.placeholder.com/100'">
+
+        <!-- Editable Content -->
+        <div class="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-[9px] uppercase tracking-widest text-gray-400 block mb-0.5">Product Name</label>
+            <input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}"
+                   class="w-full bg-transparent border-b border-transparent focus:border-gray-900 focus:outline-none text-sm font-semibold text-gray-800 transition py-0.5">
+          </div>
+          <div>
+            <label class="text-[9px] uppercase tracking-widest text-gray-400 block mb-0.5">Price (€)</label>
+            <input type="number" id="edit-price-${p.id}" value="${p.price}" step="0.01"
+                   class="w-full bg-transparent border-b border-transparent focus:border-gray-900 focus:outline-none text-sm font-medium text-gray-700 transition py-0.5">
+          </div>
+          <div class="md:col-span-2">
+            <label class="text-[9px] uppercase tracking-widest text-gray-400 block mb-0.5">Short Description</label>
+            <input type="text" id="edit-desc-${p.id}" value="${escapeHtml(p.description || '')}" maxlength="80"
+                   class="w-full bg-transparent border-b border-transparent focus:border-gray-900 focus:outline-none text-xs text-gray-500 transition py-0.5">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col space-y-2 shrink-0">
+          <button onclick="saveProductEdit('${p.id}')"
+                  class="text-[10px] uppercase tracking-widest bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-black transition shadow-sm">
+            Save
+          </button>
+          <button onclick="deleteProduct('${p.id}', '${escapeHtml(p.name)}')"
+                  class="text-[10px] uppercase tracking-widest text-red-500 border border-red-100 bg-white px-3 py-1.5 rounded-lg hover:bg-red-50 transition">
+            Delete
+          </button>
+        </div>
       </div>
-      <button onclick="deleteProduct('${p.id}', '${escapeHtml(p.name)}')"
-              class="text-gray-400 hover:text-red-500 transition px-2 py-1 rounded-lg hover:bg-red-50">
-        <i class="fa-solid fa-trash-can text-sm"></i>
-      </button>
     </div>
   `).join("");
+}
+
+async function saveProductEdit(id) {
+  const name = document.getElementById(`edit-name-${id}`).value.trim();
+  const price = parseFloat(document.getElementById(`edit-price-${id}`).value);
+  const desc = document.getElementById(`edit-desc-${id}`).value.trim();
+
+  if (!name || isNaN(price)) {
+    showToast("Please enter a valid name and price.", "error");
+    return;
+  }
+
+  try {
+    await db.collection("products").doc(id).update({
+      name,
+      price,
+      description: desc,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast("Product updated successfully! ✅", "success");
+  } catch (err) {
+    console.error("Update error:", err);
+    showToast("Failed to update product.", "error");
+  }
 }
 
 async function deleteProduct(id, name) {
@@ -616,7 +665,7 @@ function resetBulkUpload() {
   document.getElementById("bulkProgressArea").classList.add("hidden");
   document.getElementById("bulkResultsArea").classList.add("hidden");
   document.getElementById("bulkProgressBar").style.width = "0%";
-  document.getElementById("bulkImageCount").textContent  = "";
+  document.getElementById("bulkProgressText").textContent  = "";
 
   showToast("Bulk upload form cleared ✅", "success");
 }
