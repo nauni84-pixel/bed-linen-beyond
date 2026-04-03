@@ -1,196 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Owner Dashboard | Bed Linen And Beyond</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Dashboard | Bed Linen &amp; Beyond</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <style>
     body { font-family: 'Montserrat', sans-serif; }
     .heading-font { font-family: 'Cormorant Garamond', serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+
+    /* Field underline animation */
+    .animated-input {
+      border-bottom: 1px solid #d1d5db;
+      transition: border-color 0.25s;
+    }
+    .animated-input:focus {
+      outline: none;
+      border-color: #111;
+    }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-  <!-- Auth guard overlay -->
+  <!-- ── Auth Loading Overlay ── -->
   <div id="auth-loading" class="fixed inset-0 bg-white z-[999] flex items-center justify-center">
     <div class="text-center">
-      <i class="fa-solid fa-spinner fa-spin text-2xl text-gray-300 mb-4 block"></i>
-      <p class="text-xs text-gray-400 tracking-widest uppercase">Verifying access...</p>
+      <div class="w-12 h-12 rounded-full border-2 border-gray-100 border-t-gray-800 animate-spin mx-auto mb-4"></div>
+      <p class="text-xs text-gray-500 tracking-widest uppercase">Verifying access...</p>
     </div>
   </div>
 
-  <!-- Navigation -->
-  <nav class="bg-white border-b border-gray-100 px-6 py-4">
+  <!-- ── Navigation ── -->
+  <nav class="bg-white border-b border-gray-100 px-6 py-4 shadow-sm sticky top-0 z-30">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <h1 class="heading-font text-2xl tracking-widest uppercase">Admin Dashboard</h1>
+      <div class="flex items-center gap-4">
+        <a href="index.html" class="heading-font text-2xl tracking-widest uppercase text-gray-900">
+          Bed Linen &amp; Beyond
+        </a>
+        <span class="hidden md:inline-flex items-center gap-1.5 bg-gray-900 text-white text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full">
+          <i class="fa-solid fa-shield-halved text-[8px]"></i> Admin
+        </span>
+      </div>
       <div class="flex items-center space-x-6">
-        <span id="admin-email" class="text-xs text-gray-400 hidden md:block italic"></span>
-        <a href="index.html" class="text-xs uppercase tracking-widest text-gray-400 hover:text-black transition">
-          View Storefront
+        <span id="admin-email" class="text-xs text-gray-500 hidden md:block italic"></span>
+        <a href="index.html" class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-gray-900 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-store text-[9px]"></i> Storefront
         </a>
         <button onclick="logout()"
-          class="text-xs uppercase tracking-widest text-red-400 hover:text-red-600 transition flex items-center space-x-1">
-          <i class="fa-solid fa-right-from-bracket"></i>
+                class="text-[10px] uppercase tracking-widest text-red-400 hover:text-red-600 transition flex items-center gap-1.5 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg">
+          <i class="fa-solid fa-right-from-bracket text-[9px]"></i>
           <span>Logout</span>
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <div class="max-w-7xl mx-auto px-6 py-12">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+  <!-- ── Main Content ── -->
+  <div class="max-w-7xl mx-auto px-6 py-10">
 
-      <!-- LEFT: Add New Product -->
+    <!-- Page Header -->
+    <div class="mb-10">
+      <h1 class="heading-font text-4xl text-gray-900 mb-1">Inventory Dashboard</h1>
+      <p class="text-sm text-gray-500 font-light">Manage your products, upload images, and keep your boutique up to date.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+      <!-- ══════════════════════════════════════ -->
+      <!-- LEFT: Add Single Product              -->
+      <!-- ══════════════════════════════════════ -->
       <div class="lg:col-span-1">
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 sticky top-6">
-          <h2 class="heading-font text-3xl mb-8">Add New Product</h2>
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
+
+          <div class="flex items-center gap-3 mb-7">
+            <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-plus text-white text-xs"></i>
+            </div>
+            <h2 class="heading-font text-2xl text-gray-900">Add New Product</h2>
+          </div>
 
           <form id="add-product-form" class="space-y-6">
 
-            <!-- Name -->
             <div>
-              <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
-                Product Name *
-              </label>
-              <input type="text" id="prod-name" required
-                placeholder="e.g. Egyptian Cotton Duvet Cover"
-                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm">
+              <label class="text-[10px] uppercase tracking-widest text-gray-600 mb-2 block font-medium">Product Name *</label>
+              <input type="text" id="prod-name" placeholder="e.g. Egyptian Cotton Duvet Cover"
+                     class="w-full animated-input py-2 font-light text-sm text-gray-800 bg-transparent placeholder:text-gray-300">
             </div>
 
-            <!-- Price -->
             <div>
-              <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
-                Price (€) *
-              </label>
-              <input type="number" id="prod-price" step="0.01" min="0" required
-                placeholder="0.00"
-                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm">
+              <label class="text-[10px] uppercase tracking-widest text-gray-600 mb-2 block font-medium">Price (€) *</label>
+              <input type="number" id="prod-price" step="0.01" min="0" placeholder="0.00"
+                     class="w-full animated-input py-2 font-light text-sm text-gray-800 bg-transparent placeholder:text-gray-300">
             </div>
 
-            <!-- Description -->
             <div>
-              <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
-                Short Description
-              </label>
-              <input type="text" id="prod-desc" maxlength="80"
-                placeholder="e.g. 500 thread count. Pure luxury."
-                class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition font-light text-sm">
+              <label class="text-[10px] uppercase tracking-widest text-gray-600 mb-2 block font-medium">Short Description</label>
+              <input type="text" id="prod-desc" maxlength="80" placeholder="e.g. 500 thread count. Pure luxury."
+                     class="w-full animated-input py-2 font-light text-sm text-gray-800 bg-transparent placeholder:text-gray-300">
             </div>
 
-            <!-- ── IMAGE SECTION (GitHub method) ───────────────── -->
-            <div class="space-y-5 bg-gray-50 rounded-xl p-5 border border-gray-100">
-
-              <p class="text-[10px] uppercase tracking-widest text-gray-500 font-semibold">
-                Product Image — 2 steps
+            <!-- Image Section -->
+            <div class="space-y-4 bg-gray-50 rounded-xl p-5 border border-gray-200">
+              <p class="text-[10px] uppercase tracking-widest text-gray-600 font-semibold">
+                <i class="fa-solid fa-image mr-1.5 text-gray-400"></i> Product Image
               </p>
 
-              <!-- STEP 1: Pick file for local preview -->
-              <div>
-                <p class="text-xs text-gray-600 mb-3">
-                  <span class="bg-black text-white rounded-full w-4 h-4 inline-flex items-center justify-center text-[9px] mr-1">1</span>
-                  Pick your image file to preview it
-                </p>
-
-                <label for="prod-image-file" class="block cursor-pointer group">
-                  <div class="border-2 border-dashed border-gray-200 group-hover:border-black transition p-6 text-center rounded-lg">
-                    <i class="fa-solid fa-image text-2xl text-gray-300 group-hover:text-black transition mb-2 block"></i>
-                    <p class="text-xs text-gray-400">Click to choose image</p>
-                    <p class="text-[10px] text-gray-300 mt-1">JPG, PNG, WEBP</p>
-                  </div>
-                  <input type="file" id="prod-image-file" accept="image/*" class="hidden">
-                </label>
-
-                <!-- Preview appears here after picking -->
-                <div id="image-preview" class="hidden mt-3">
-                  <img id="preview-img" src="" alt="Preview"
-                    class="w-full h-40 object-cover rounded-lg border border-gray-100">
+              <label for="prod-image-file" class="block cursor-pointer group">
+                <div class="border-2 border-dashed border-gray-200 group-hover:border-gray-700 group-hover:bg-white transition p-6 text-center rounded-xl">
+                  <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 group-hover:text-gray-700 transition mb-2 block"></i>
+                  <p class="text-xs text-gray-500 group-hover:text-gray-700 transition font-light">Click to choose an image</p>
+                  <p class="text-[10px] text-gray-400 mt-1">JPG, PNG, WEBP supported</p>
                 </div>
+                <input type="file" id="prod-image-file" accept="image/*" class="hidden">
+              </label>
+
+              <div id="image-preview" class="hidden mt-3">
+                <img id="preview-img" src="" alt="Preview" class="w-full h-44 object-cover rounded-xl border border-gray-200 shadow-sm">
               </div>
 
-              <!-- STEP 2: Upload to GitHub + confirm filename -->
-              <div id="step2-section" class="hidden">
-                <p class="text-xs text-gray-600 mb-3">
-                  <span class="bg-black text-white rounded-full w-4 h-4 inline-flex items-center justify-center text-[9px] mr-1">2</span>
-                  Upload this file to GitHub, then confirm the filename
-                </p>
-
-                <!-- GitHub upload link -->
-                <a id="github-upload-link"
-                  href="#"
-                  target="_blank"
-                  class="flex items-center space-x-2 bg-gray-900 text-white px-4 py-3 rounded-lg text-xs hover:bg-gray-700 transition mb-4">
+              <div id="step2-section" class="hidden space-y-3">
+                <div class="flex items-center gap-2 text-xs text-gray-700">
+                  <span class="bg-gray-900 text-white rounded-full w-5 h-5 inline-flex items-center justify-center text-[9px] shrink-0">2</span>
+                  <span class="font-medium">Upload file to GitHub <code class="bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">images/</code> folder</span>
+                </div>
+                <a id="github-upload-link" href="#" target="_blank"
+                   class="flex items-center space-x-2 bg-gray-900 text-white px-4 py-3 rounded-lg text-xs hover:bg-gray-700 transition">
                   <i class="fa-brands fa-github text-base"></i>
-                  <span>Open GitHub → Upload image file</span>
+                  <span>Open GitHub → Upload File</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto opacity-60"></i>
                 </a>
 
-                <!-- Filename field (auto-filled, editable) -->
-                <div>
-                  <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
-                    Image Filename *
-                  </label>
-                  <input type="text" id="prod-filename"
-                    placeholder="e.g. cotton-duvet.jpg"
-                    class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition text-sm font-light">
-                  <p class="text-[10px] text-gray-400 mt-1">
-                    Must match exactly what you upload to GitHub
-                  </p>
-                </div>
-
-                <!-- Constructed URL preview -->
-                <div class="mt-3 bg-white border border-gray-100 rounded p-3">
-                  <p class="text-[9px] uppercase tracking-widest text-gray-400 mb-1">Image will load from:</p>
-                  <p id="url-preview" class="text-[10px] text-blue-500 break-all font-mono"></p>
+                <label class="text-[10px] uppercase tracking-widest text-gray-600 mb-1 block font-medium">Confirmed Filename *</label>
+                <input type="text" id="prod-filename" placeholder="e.g. cotton-duvet.jpg"
+                       class="w-full animated-input py-2 text-sm font-light text-gray-800 bg-transparent placeholder:text-gray-300">
+                <div class="mt-2 bg-white border border-gray-200 rounded-lg p-3">
+                  <p class="text-[9px] text-gray-500 mb-1 uppercase tracking-widest">Preview URL</p>
+                  <p id="url-preview" class="text-[10px] text-blue-600 break-all font-mono"></p>
                 </div>
               </div>
-
             </div>
-            <!-- ── END IMAGE SECTION ───────────────────────────── -->
 
-            <!-- Submit -->
             <button type="submit" id="submit-btn"
-              class="w-full bg-black text-white py-4 tracking-widest uppercase text-xs
-                     hover:bg-gray-800 transition shadow-lg
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     flex items-center justify-center space-x-2">
-              <i class="fa-solid fa-plus"></i>
-              <span>Add Product to Boutique</span>
+                    class="w-full bg-gray-900 text-white py-4 tracking-widest uppercase text-xs hover:bg-black transition shadow-lg flex items-center justify-center space-x-2 rounded-xl">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span id="submit-btn-text">Add Product to Boutique</span>
             </button>
-
           </form>
         </div>
       </div>
 
-      <!-- RIGHT: Manage Products -->
+      <!-- ══════════════════════════════════════ -->
+      <!-- RIGHT: Inventory                      -->
+      <!-- ══════════════════════════════════════ -->
       <div class="lg:col-span-2">
-        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-          <h2 class="heading-font text-3xl mb-8">Inventory Management</h2>
-          <div id="admin-product-list" class="space-y-6">
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+
+          <div class="flex items-center justify-between mb-7">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-list text-gray-600 text-xs"></i>
+              </div>
+              <h2 class="heading-font text-2xl text-gray-900">Inventory Management</h2>
+            </div>
+          </div>
+
+          <div id="admin-product-list" class="space-y-3">
             <div class="text-center py-12">
-              <i class="fa-solid fa-spinner fa-spin text-xl text-gray-300 mb-3 block"></i>
-              <p class="text-sm text-gray-400">Loading inventory...</p>
+              <div class="w-10 h-10 rounded-full border-2 border-gray-100 border-t-gray-400 animate-spin mx-auto mb-3"></div>
+              <p class="text-sm text-gray-500 font-light">Loading inventory...</p>
             </div>
           </div>
         </div>
       </div>
 
+    </div><!-- /grid -->
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- BULK IMAGE UPLOAD SECTION                 -->
+    <!-- ══════════════════════════════════════════ -->
+    <section class="mt-10 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+      <!-- Header toggle -->
+      <button onclick="document.getElementById('bulkContent').classList.toggle('hidden'); this.querySelector('.chevron').classList.toggle('rotate-180')"
+              class="w-full flex items-center justify-between px-8 py-5 bg-gray-900 text-white text-left hover:bg-black transition-all duration-200 cursor-pointer">
+        <div class="flex items-center gap-4">
+          <div class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-images text-lg"></i>
+          </div>
+          <div>
+            <h2 class="heading-font text-xl tracking-widest uppercase">Bulk Upload Products</h2>
+            <p class="text-gray-400 text-[10px] mt-0.5 tracking-wide font-light">Select multiple images, edit names &amp; prices, upload all at once</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-down chevron transition-transform duration-300 text-gray-400"></i>
+      </button>
+
+      <!-- Bulk body -->
+      <div id="bulkContent" class="hidden p-8 space-y-8">
+
+        <!-- GitHub Token -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <h3 class="text-sm text-blue-800 flex items-center gap-2 mb-3">
+            <i class="fa-solid fa-key text-blue-600"></i>
+            <span class="font-semibold">GitHub Access Token</span>
+            <span class="text-[10px] text-blue-500 font-normal tracking-widest uppercase ml-1">(one-time setup)</span>
+          </h3>
+          <p class="text-xs text-blue-700 mb-4 font-light leading-relaxed">
+            This token lets the admin panel upload images directly to your GitHub repo.
+            It is stored <strong>only in your browser</strong> — never sent anywhere else.
+          </p>
+          <div class="flex gap-3 flex-wrap">
+            <input type="password" id="githubPatInput"
+                   placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                   class="flex-1 min-w-0 px-4 py-2.5 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:outline-none font-mono text-xs bg-white text-gray-800 placeholder:text-gray-400" />
+            <button type="button" onclick="saveGithubPat()"
+                    class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-xs tracking-widest uppercase whitespace-nowrap shadow-sm">
+              <i class="fa-solid fa-floppy-disk mr-1"></i> Save Token
+            </button>
+          </div>
+          <div id="patStatus" class="mt-3 text-xs"></div>
+
+          <details class="mt-4">
+            <summary class="text-xs text-blue-600 cursor-pointer hover:text-blue-800 font-medium">
+              How to create a GitHub token →
+            </summary>
+            <ol class="mt-3 text-xs text-blue-700 space-y-1.5 list-decimal list-inside bg-white p-4 rounded-lg border border-blue-100 font-light">
+              <li>Go to <a href="https://github.com/settings/tokens" target="_blank" class="underline">github.com/settings/tokens</a></li>
+              <li>Click <strong>"Generate new token (classic)"</strong></li>
+              <li>Note: <code class="bg-blue-100 px-1 py-0.5 rounded text-[10px]">bed-linen-admin</code></li>
+              <li>Expiration: 90 days or "No expiration"</li>
+              <li>Scopes: tick <strong>repo</strong> (full control)</li>
+              <li>Click <strong>"Generate token"</strong> → copy it</li>
+              <li>Paste the token above and click Save</li>
+            </ol>
+          </details>
+        </div>
+
+        <!-- Step 1: Select Images -->
+        <div class="space-y-3">
+          <h3 class="text-sm text-gray-700 flex items-center gap-2">
+            <span class="bg-gray-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold">1</span>
+            <span class="font-semibold">Select Product Images</span>
+          </h3>
+          <label for="bulkImagesInput" class="block cursor-pointer group">
+            <div class="border-2 border-dashed border-gray-200 group-hover:border-gray-700 group-hover:bg-gray-50 transition p-10 text-center rounded-xl">
+              <i class="fa-solid fa-images text-4xl text-gray-300 group-hover:text-gray-600 transition mb-3 block"></i>
+              <p class="text-sm text-gray-600 group-hover:text-gray-800 transition font-light">Click to select multiple images</p>
+              <p class="text-[10px] text-gray-400 mt-1">You can select as many files as you want at once</p>
+            </div>
+            <input type="file" id="bulkImagesInput" multiple accept="image/*" class="hidden" />
+          </label>
+          <div id="bulkImageCount" class="text-xs text-gray-500 font-light"></div>
+        </div>
+
+        <!-- Step 2: Editable Cards -->
+        <div id="bulkCardsArea" class="hidden space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <h3 class="text-sm text-gray-700 flex items-center gap-2">
+              <span class="bg-gray-900 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold">2</span>
+              <span class="font-semibold">Edit Product Details</span>
+            </h3>
+            <div class="flex gap-2">
+              <button type="button" onclick="addMoreImages()"
+                      class="text-[10px] uppercase tracking-widest text-gray-600 hover:text-black transition flex items-center gap-1.5 border border-gray-200 hover:border-gray-700 px-3 py-1.5 rounded-lg">
+                <i class="fa-solid fa-plus text-[9px]"></i> Add More
+              </button>
+              <button type="button" onclick="clearAllBulkCards()"
+                      class="text-[10px] uppercase tracking-widest text-red-400 hover:text-red-600 transition flex items-center gap-1.5 border border-gray-200 hover:border-red-300 px-3 py-1.5 rounded-lg">
+                <i class="fa-solid fa-trash-can text-[9px]"></i> Clear All
+              </button>
+            </div>
+          </div>
+
+          <div id="bulkCardsContainer" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar"></div>
+
+          <button type="button" onclick="handleBulkUpload()" id="bulkUploadBtn"
+                  class="w-full py-4 bg-gray-900 text-white rounded-xl tracking-widest uppercase text-xs
+                         hover:bg-black transition shadow-lg
+                         flex items-center justify-center gap-3
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+            <span id="bulkUploadBtnText">Upload All Products to Boutique</span>
+          </button>
+        </div>
+
+        <!-- Progress -->
+        <div id="bulkProgressArea" class="hidden space-y-3">
+          <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+            <div id="bulkProgressBar"
+                 class="bg-gray-900 h-3 rounded-full transition-all duration-500 ease-out flex items-center justify-center text-white text-[9px] font-semibold"
+                 style="width: 0%">
+            </div>
+          </div>
+          <p id="bulkProgressText" class="text-xs text-gray-500 text-center font-light"></p>
+        </div>
+
+        <!-- Results -->
+        <div id="bulkResultsArea" class="hidden space-y-4">
+          <div id="bulkResultsSummary" class="p-5 rounded-xl text-center text-sm"></div>
+          <div id="bulkResultsDetails" class="text-xs space-y-1 max-h-40 overflow-y-auto custom-scrollbar"></div>
+          <button type="button" onclick="resetBulkUpload()"
+                  class="w-full py-3 bg-gray-100 text-gray-700 rounded-xl text-xs tracking-widest uppercase hover:bg-gray-200 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate-right"></i> Upload Another Batch
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Hidden extra file input -->
+    <input type="file" id="bulkAddMoreInput" multiple accept="image/*" class="hidden" />
+
+  </div><!-- /max-w-7xl -->
+
+  <!-- ── Footer ── -->
+  <footer class="mt-16 border-t border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-3">
+      <p class="text-[10px] text-gray-400 font-light">
+        Admin Panel — Bed Linen &amp; Beyond
+      </p>
+      <p class="text-[10px] text-gray-400 font-light">
+        &copy; 2025 Bed Linen &amp; Beyond. All rights reserved.
+      </p>
     </div>
-  </div>
+  </footer>
 
-  <!-- Toast -->
-  <div id="toast"
-    class="fixed bottom-6 right-6 z-50 bg-black text-white px-6 py-4 shadow-xl
-           flex items-center space-x-3 max-w-sm
-           translate-x-[150%] transition-transform duration-500">
+  <!-- ── Toast ── -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 shadow-2xl rounded-lg flex items-center space-x-3 max-w-sm translate-x-[150%] transition-transform duration-500">
     <i id="toast-icon" class="fa-solid fa-check text-green-400 flex-shrink-0"></i>
-    <span id="toast-message" class="text-sm leading-relaxed"></span>
+    <span id="toast-message" class="text-sm leading-relaxed font-light"></span>
   </div>
 
-  <!-- ✅ Firebase SDKs — Storage SDK REMOVED -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>

@@ -3,77 +3,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Owner Login | Bed Linen And Beyond</title>
+  <title>Owner Login | Bed Linen &amp; Beyond</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
     body { font-family: 'Montserrat', sans-serif; }
     .heading-font { font-family: 'Cormorant Garamond', serif; }
+
+    /* ── Two-column layout background (right side) ── */
     .login-bg {
       background:
-        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-        url('https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=2000');
-      background-size: cover;
-      background-position: center;
+        linear-gradient(135deg, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.30) 100%),
+        url('https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&q=80&w=1800')
+        center center / cover no-repeat;
     }
+
+    /* ── Animated underline on inputs ── */
+    .field-line {
+      position: relative;
+    }
+    .field-line::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: #000;
+      transition: width 0.3s ease;
+    }
+    .field-line:focus-within::after { width: 100%; }
   </style>
 </head>
-<body class="min-h-screen login-bg flex items-center justify-center p-6">
+<body class="min-h-screen flex">
 
-  <div class="w-full max-w-md">
+  <!-- ── LEFT PANEL: Form ───────────────────────────── -->
+  <div class="w-full lg:w-1/2 flex flex-col justify-between bg-white px-8 py-10 md:px-16 md:py-14">
 
-    <!-- ── Login Card ─────────────────────────────── -->
-    <div class="bg-white p-10 md:p-12 shadow-2xl">
+    <!-- Top: Logo -->
+    <div>
+      <a href="index.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-gray-700 transition text-[10px] uppercase tracking-widest mb-12">
+        <i class="fa-solid fa-arrow-left text-[9px]"></i> Back to Shop
+      </a>
 
-      <!-- Logo / Brand -->
-      <div class="text-center mb-10">
-        <h1 class="heading-font text-4xl tracking-widest uppercase mb-2">
-          Bed Linen <span class="text-gray-400">&</span> Beyond
+      <div class="mb-10">
+        <p class="text-[10px] uppercase tracking-[0.35em] text-gray-500 mb-3">Owner Access Portal</p>
+        <h1 class="heading-font text-4xl md:text-5xl tracking-wide text-gray-900 leading-tight">
+          Bed Linen<br/><span class="text-gray-400 font-light">&amp;</span> Beyond
         </h1>
-        <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400">Owner Access Portal</p>
-        <div class="w-12 h-px bg-gray-200 mx-auto mt-5"></div>
+        <div class="w-10 h-0.5 bg-gray-200 mt-5"></div>
       </div>
 
       <!-- Login Form -->
-      <form id="login-form" class="space-y-8" novalidate>
+      <form id="login-form" class="space-y-8 max-w-sm" novalidate>
 
         <!-- Email -->
         <div>
-          <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
+          <label class="text-[10px] uppercase tracking-widest text-gray-600 mb-3 block font-medium">
             Email Address
           </label>
-          <input
-            type="email"
-            id="login-email"
-            required
-            autocomplete="email"
-            placeholder="your@email.com"
-            class="w-full border-b border-gray-200 py-3 text-sm font-light
-                   focus:outline-none focus:border-black transition placeholder-gray-300"
-          >
+          <div class="field-line border-b border-gray-200 pb-2">
+            <input
+              type="email"
+              id="login-email"
+              required
+              autocomplete="email"
+              placeholder="your@email.com"
+              class="w-full text-sm font-light text-gray-800
+                     focus:outline-none placeholder:text-gray-300 bg-transparent"
+            >
+          </div>
         </div>
 
         <!-- Password -->
         <div>
-          <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">
+          <label class="text-[10px] uppercase tracking-widest text-gray-600 mb-3 block font-medium">
             Password
           </label>
-          <div class="relative">
+          <div class="field-line border-b border-gray-200 pb-2 relative flex items-center gap-2">
             <input
               type="password"
               id="login-password"
               required
               autocomplete="current-password"
               placeholder="••••••••"
-              class="w-full border-b border-gray-200 py-3 text-sm font-light
-                     focus:outline-none focus:border-black transition placeholder-gray-300 pr-10"
+              class="flex-1 text-sm font-light text-gray-800
+                     focus:outline-none placeholder:text-gray-300 bg-transparent"
             >
-            <!-- Show/hide password toggle -->
             <button
               type="button"
               onclick="togglePasswordVisibility()"
-              class="absolute right-0 top-3 text-gray-300 hover:text-black transition"
+              class="text-gray-300 hover:text-gray-600 transition shrink-0"
               title="Show/hide password"
             >
               <i id="eye-icon" class="fa-solid fa-eye text-sm"></i>
@@ -81,20 +100,20 @@
           </div>
         </div>
 
-        <!-- Error Box (hidden by default) -->
-        <div id="error-box" class="hidden bg-red-50 border border-red-100 rounded px-4 py-3 flex items-start space-x-3">
+        <!-- Error Box -->
+        <div id="error-box" class="hidden bg-red-50 border-l-4 border-red-400 px-4 py-3 flex items-start space-x-3 rounded-r">
           <i class="fa-solid fa-circle-exclamation text-red-400 mt-0.5 flex-shrink-0 text-sm"></i>
           <span id="error-text" class="text-red-600 text-xs leading-relaxed"></span>
         </div>
 
-        <!-- Submit Button -->
+        <!-- Submit -->
         <button
           type="submit"
           id="login-btn"
-          class="w-full bg-black text-white py-4 text-xs uppercase tracking-[0.2em]
-                 hover:bg-gray-800 transition
+          class="w-full bg-gray-900 text-white py-4 text-xs uppercase tracking-[0.25em]
+                 hover:bg-black transition shadow-lg
                  disabled:opacity-60 disabled:cursor-not-allowed
-                 flex items-center justify-center space-x-2"
+                 flex items-center justify-center space-x-3"
         >
           <i id="btn-icon" class="fa-solid fa-right-to-bracket"></i>
           <span id="btn-text">Enter Dashboard</span>
@@ -103,16 +122,26 @@
       </form>
     </div>
 
-    <!-- Back to shop -->
-    <div class="text-center mt-6">
-      <a href="index.html" class="text-white/50 hover:text-white text-[10px] uppercase tracking-widest transition">
-        ← Back to Shop
-      </a>
+    <!-- Bottom: Copyright -->
+    <div class="mt-12 pt-6 border-t border-gray-100">
+      <p class="text-[10px] text-gray-400 font-light">
+        &copy; 2025 Bed Linen &amp; Beyond. All rights reserved.
+      </p>
     </div>
-
   </div>
 
-<!-- Firebase SDKs — all 3 needed because firebase-config.js uses firestore() -->
+  <!-- ── RIGHT PANEL: Wallpaper ────────────────────── -->
+  <div class="hidden lg:flex lg:w-1/2 login-bg flex-col justify-end p-14">
+    <blockquote class="text-white">
+      <p class="heading-font text-3xl font-light italic leading-snug mb-4 text-white/90">
+        "Where every thread tells a story of comfort."
+      </p>
+      <footer class="text-[10px] uppercase tracking-widest text-white/50">
+        — Bed Linen &amp; Beyond
+      </footer>
+    </blockquote>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
