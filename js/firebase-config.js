@@ -1,18 +1,8 @@
 // ============================================================
 //  js/firebase-config.js
 //  Shared Firebase setup — loaded by ALL pages.
-//
-//  ⚠️  IMPORTANT: Replace every "YOUR_..." value below.
-//
-//  How to get your config (takes 5 minutes):
-//  1. Go to https://console.firebase.google.com
-//  2. Click your project → ⚙️ Project Settings (gear icon)
-//  3. Scroll to "Your apps" → click </> (Web icon)
-//  4. Register your app → copy the firebaseConfig object
-//  5. Paste each value below, replacing the placeholders
 // ============================================================
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAWWKtuX6FydfU3XCxvH_9h-S6zdVWWcwU",
   authDomain: "bed-linen-beyond.firebaseapp.com",
@@ -24,12 +14,13 @@ const firebaseConfig = {
 };
 
 // ── Initialize Firebase ─────────────────────────────────────
-//    Safe to call once — all pages share this file.
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 // ── Global Service References ───────────────────────────────
-//    These three variables are available in app.js,
-//    admin.js, and auth.js — because they load AFTER
-//    this file in every HTML page.
-const db      = firebase.firestore();   // ← Product database
-const auth    = firebase.auth();        // ← Login system
+// We wrap these in checks so the page doesn't crash if
+// a specific library (like Auth) isn't loaded on that page.
+
+const db = typeof firebase.firestore === "function" ? firebase.firestore() : null;
+const auth = typeof firebase.auth === "function" ? firebase.auth() : null;
